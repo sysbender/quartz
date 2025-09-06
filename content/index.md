@@ -1,8 +1,7 @@
 ---
-title: Welcome to Quartz
+title: Welcome to Sysbender's Notes
 ---
 
-This is a blank Quartz installation.
-See the [documentation](https://quartz.jzhao.xyz) for how to get started.
+ 
 
 [[Notes taking and publish with Obsidian]]
