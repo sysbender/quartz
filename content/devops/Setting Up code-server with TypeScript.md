@@ -54,27 +54,48 @@ services:
 ## 📄 `Dockerfile`
 Builds on `coder/code-server`, adds Node.js 20, TypeScript, git, and clones the repo.
 
-<xaiArtifact artifact_id="bce6e4cf-32fa-4c75-be2e-369edd2716e2" artifact_version_id="33a09380-961e-4860-b3af-bd7470cb3df0" title="Dockerfile" contentType="text/dockerfile">
-```dockerfile
-FROM coder/code-server:4.103.2-39
+ ```yaml
+ FROM codercom/code-server:ubuntu
+
+# Switch to root for system installs
 USER root
+
+# Install dependencies: curl (for NodeSource), git, build tools
 RUN apt-get update && apt-get install -y \
-    curl git build-essential python3 \
+    curl \
+    git \
+    build-essential \
+    python3 \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20 LTS via NodeSource (replaces bundled Node ~18)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm@latest typescript
+
+# Clone the repo (verbose for logs)
 WORKDIR /home/coder/project
-RUN git clone https://github.com/total-typescript/beginners-typescript-tutorial.git beginners-typescript-tutorial && \
+RUN git clone --verbose https://github.com/total-typescript/beginners-typescript-tutorial.git beginners-typescript-tutorial && \
     cd beginners-typescript-tutorial && \
-    npm install
+    ls -la  # Verify clone: Should list package.json, src/, etc.
+
+# Install dependencies (separate layer for isolation; verbose)
+RUN cd /home/coder/project/beginners-typescript-tutorial && \
+    npm install --verbose
+
+# Fix ownership to coder user (UID 1000) for WSL mounts
 RUN chown -R coder:coder /home/coder/project
+
+# Switch to non-root coder user
 USER coder
+
+# Expose code-server port
 EXPOSE 8080
+
+# Start code-server in the repo directory
 WORKDIR /home/coder/project/beginners-typescript-tutorial
 CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "password", "."]
-```
-</xaiArtifact>
+ ```
 
 ---
 
