@@ -19,25 +19,24 @@ code-server-ts-dev/
 ## 📄 `docker-compose.yml`
 Orchestrates the container with persistent volumes and WSL UID/GID.
 
-<xaiArtifact artifact_id="cb17a2d8-8e23-47d6-aa1b-a0a41dc0d934" artifact_version_id="10b27c54-4e2a-4ab8-9f1d-6c58a52583dd" title="docker-compose.yml" contentType="text/yaml">
-```yaml
-services:
+ ```yml
+ services:
   code-server:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: code-server-ts
-    user: "1000:1000"
+    user: "1000:1000"  # Matches your WSL UID/GID; adjust if `id -u` != 1000
     ports:
-      - "8080:8080"
+      - "18080:8080"  # Access at http://localhost:8080
     volumes:
-      - ./workspace:/home/coder/project
-      - ./code-server-config:/home/coder/.config/code-server
-      - ./code-server-extensions:/home/coder/.local/share/code-server
+      - ./workspace:/home/coder/project  # Persist repo and code
+      - ./code-server-config:/home/coder/.config/code-server  # Bind mount for config (avoids root issues)
+      - ./code-server-extensions:/home/coder/.local/share/code-server  # Bind mount for extensions
     environment:
-      - PUID=1000
-      - PGID=1000
-      - PASSWORD=your_secure_password_here
+      - PUID=1000  # Your WSL UID
+      - PGID=1000  # Your WSL GID
+      - PASSWORD=code  # Change this!
       - DEFAULT_WORKSPACE=/home/coder/project/beginners-typescript-tutorial
       - TZ=Etc/UTC
     restart: unless-stopped
@@ -46,8 +45,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-```
-</xaiArtifact>
+ ```
 
 ---
 
